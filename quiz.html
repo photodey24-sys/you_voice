@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тест: твой голос вызывает доверие?</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a1628;
+    --card: #0f1f3d;
+    --accent: #2e86de;
+    --accent2: #54a0ff;
+    --accent3: #00d2d3;
+    --text: #e8f0fe;
+    --muted: #7a9cc4;
+    --border: rgba(46,134,222,0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Звуковая волна на фоне */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 50% 0%, rgba(46,134,222,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 0% 100%, rgba(0,210,211,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 30% at 100% 50%, rgba(84,160,255,0.1) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Анимированные волны */
+  .waves {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.15;
+  }
+  .wave-bar {
+    width: 3px;
+    background: linear-gradient(to top, var(--accent), var(--accent2));
+    border-radius: 3px;
+    animation: waveAnim 1.2s ease-in-out infinite;
+  }
+  @keyframes waveAnim {
+    0%, 100% { transform: scaleY(0.2); }
+    50% { transform: scaleY(1); }
+  }
+
+  .container {
+    width: 100%;
+    max-width: 680px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* SPLASH */
+  .splash { text-align: center; animation: fadeUp 0.7s ease forwards; }
+
+  .splash-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    border: 1px solid rgba(84,160,255,0.3);
+    padding: 8px 20px;
+    border-radius: 100px;
+    margin-bottom: 32px;
+    background: rgba(46,134,222,0.08);
+  }
+
+  .splash-icon {
+    font-size: 56px;
+    margin-bottom: 8px;
+    display: block;
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .splash h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(38px, 9vw, 68px);
+    line-height: 1;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #fff 10%, var(--accent2) 50%, var(--accent3) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 1px;
+  }
+
+  .splash p {
+    font-size: 17px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 480px;
+    margin: 0 auto 40px;
+  }
+
+  .splash-stats {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-bottom: 36px;
+  }
+  .stat {
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--accent2);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .btn-start {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--accent), #1a6fd4);
+    color: #fff;
+    font-family: 'Manrope', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 18px 52px;
+    border-radius: 100px;
+    border: none;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 8px 40px rgba(46,134,222,0.4);
+  }
+  .btn-start:hover { transform: translateY(-3px); box-shadow: 0 12px 50px rgba(46,134,222,0.6); }
+
+  .splash-author {
+    margin-top: 28px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .splash-author strong { color: var(--text); }
+
+  /* PROGRESS */
+  .progress-wrap { margin-bottom: 28px; display: none; }
+  .progress-wrap.show { display: block; }
+
+  .progress-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .progress-bar {
+    height: 3px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    border-radius: 100px;
+    transition: width 0.5s ease;
+    box-shadow: 0 0 12px rgba(46,134,222,0.6);
+  }
+
+  /* QUESTION */
+  .question-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    padding: 48px;
+    display: none;
+    animation: fadeUp 0.45s ease forwards;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  .question-card.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-number {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .q-number::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .q-text {
+    font-size: clamp(18px, 3vw, 22px);
+    font-weight: 700;
+    line-height: 1.45;
+    margin-bottom: 32px;
+    color: var(--text);
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option {
+    padding: 16px 22px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: rgba(46,134,222,0.04);
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.4;
+    transition: all 0.2s ease;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    position: relative;
+    overflow: hidden;
+  }
+  .option::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 0;
+    background: linear-gradient(135deg, rgba(46,134,222,0.15), transparent);
+    transition: width 0.3s;
+  }
+  .option:hover { border-color: rgba(84,160,255,0.5); transform: translateX(4px); }
+  .option:hover::before { width: 100%; }
+  .option.selected {
+    border-color: var(--accent2);
+    background: rgba(46,134,222,0.15);
+    color: #fff;
+  }
+  .option.selected::before { width: 100%; }
+
+  /* RESULT */
+  .result-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    padding: 48px;
+    display: none;
+    text-align: center;
+    animation: fadeUp 0.6s ease forwards;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .result-card.active { display: block; }
+
+  .result-emoji { font-size: 72px; margin-bottom: 20px; display: block; }
+
+  .result-type {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 12px;
+  }
+
+  .result-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(42px, 9vw, 68px);
+    line-height: 1;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #fff 10%, var(--accent2) 60%, var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 1px;
+  }
+
+  .result-divider {
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    margin: 0 auto 24px;
+    border-radius: 2px;
+  }
+
+  .result-desc {
+    font-size: 16px;
+    color: var(--muted);
+    line-height: 1.75;
+    max-width: 520px;
+    margin: 0 auto 24px;
+  }
+
+  .result-traits {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin: 0 0 36px;
+  }
+
+  .trait {
+    padding: 6px 16px;
+    border-radius: 100px;
+    background: rgba(46,134,222,0.12);
+    border: 1px solid rgba(46,134,222,0.3);
+    font-size: 13px;
+    color: var(--accent2);
+    font-weight: 600;
+  }
+
+  .btn-vk {
+    display: block;
+    background: linear-gradient(135deg, #2787F5, #1a6fd4);
+    color: #fff;
+    font-family: 'Manrope', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 18px 48px;
+    border-radius: 100px;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 8px 32px rgba(39,135,245,0.35);
+    margin-bottom: 12px;
+  }
+  .btn-vk:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(39,135,245,0.55); }
+
+  .btn-retry {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    padding: 12px 32px;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+  }
+  .btn-retry:hover { border-color: var(--accent); color: var(--text); }
+
+  .credit {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .credit a { color: var(--accent2); text-decoration: none; }
+
+  @media (max-width: 480px) {
+    .question-card, .result-card { padding: 28px 20px; }
+    .splash-stats { gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Анимированные волны -->
+<div class="waves" id="waves"></div>
+
+<div class="container">
+
+  <!-- SPLASH -->
+  <div class="splash" id="splash">
+    <div class="splash-badge">🎙️ Сила голоса</div>
+    <h1>Твой голос вызывает доверие?</h1>
+    <p>10 честных вопросов — и ты узнаешь, как тебя воспринимают на самом деле. Без прикрас.</p>
+    <div class="splash-stats">
+      <div class="stat"><div class="stat-num">10</div><div class="stat-label">вопросов</div></div>
+      <div class="stat"><div class="stat-num">2</div><div class="stat-label">минуты</div></div>
+      <div class="stat"><div class="stat-num">4</div><div class="stat-label">типа голоса</div></div>
+    </div>
+    <button class="btn-start" onclick="startQuiz()">Узнать свой тип →</button>
+
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-top">
+      <span id="progressText">Вопрос 1 из 10</span>
+      <span id="progressPercent">0%</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- QUESTIONS -->
+  <div id="questions"></div>
+
+  <!-- RESULT -->
+  <div class="result-card" id="result">
+    <span class="result-emoji" id="rEmoji"></span>
+    <div class="result-type">Твой тип голоса</div>
+    <div class="result-title" id="rTitle"></div>
+    <div class="result-divider"></div>
+    <div class="result-desc" id="rDesc"></div>
+    <div class="result-traits" id="rTraits"></div>
+    <a href="https://vk.com/kris_deyneko" target="_blank" class="btn-vk">🔊 Узнать больше о своём голосе</a>
+    <button class="btn-retry" onclick="retryQuiz()">↺ Пройти ещё раз</button>
+  </div>
+
+  <div class="credit">Кристина Дейнеко — тренер по речи и постановке голоса</div>
+</div>
+
+<script>
+// Генерируем волны
+const wavesEl = document.getElementById('waves');
+for (let i = 0; i < 80; i++) {
+  const bar = document.createElement('div');
+  bar.className = 'wave-bar';
+  const h = 20 + Math.random() * 80;
+  bar.style.height = h + 'px';
+  bar.style.animationDelay = (Math.random() * 1.2) + 's';
+  bar.style.animationDuration = (0.8 + Math.random() * 0.8) + 's';
+  bar.style.opacity = 0.4 + Math.random() * 0.6;
+  wavesEl.appendChild(bar);
+}
+
+const questions = [
+  {
+    text: "Когда ты говоришь на важной встрече или созвоне — что чаще всего происходит?",
+    options: [
+      { text: "Меня слушают внимательно, часто просят повторить или уточнить", type: "expert" },
+      { text: "Люди кивают, но я не уверен(а), что меня услышали по-настоящему", type: "therapist" },
+      { text: "Иногда перебивают или отвлекаются на телефон", type: "provocateur" },
+      { text: "Меня слушают и часто соглашаются — харизма работает", type: "magnet" }
+    ]
+  },
+  {
+    text: "Тебя когда-нибудь просили говорить тише, медленнее или громче?",
+    options: [
+      { text: "Да, говорят что говорю слишком быстро и сбивчиво", type: "provocateur" },
+      { text: "Нет, темп обычно комфортный для всех", type: "expert" },
+      { text: "Просят говорить громче — голос тихий", type: "therapist" },
+      { text: "Бывает, говорят что слишком громко или напористо", type: "magnet" }
+    ]
+  },
+  {
+    text: "Как ты реагируешь, когда тебя перебивают посреди важной мысли?",
+    options: [
+      { text: "Замолкаю и жду паузы — неловко настаивать", type: "therapist" },
+      { text: "Продолжаю говорить, повышая голос если нужно", type: "magnet" },
+      { text: "Спокойно заканчиваю мысль, не теряясь", type: "expert" },
+      { text: "Делаю острое замечание — и продолжаю", type: "provocateur" }
+    ]
+  },
+  {
+    text: "Когда ты слышишь своё голосовое сообщение — твоя первая реакция:",
+    options: [
+      { text: "«Нормально, но хочется звучать увереннее»", type: "therapist" },
+      { text: "«Ужас, удаляю и перезаписываю»", type: "provocateur" },
+      { text: "«Звучу чётко и по делу»", type: "expert" },
+      { text: "«Мне нравится — голос живой и приятный»", type: "magnet" }
+    ]
+  },
+  {
+    text: "Незнакомый человек звонит тебе впервые. Как ты начинаешь разговор?",
+    options: [
+      { text: "Чётко представляюсь и сразу перехожу к делу", type: "expert" },
+      { text: "Тепло здороваюсь, спрашиваю как дела", type: "therapist" },
+      { text: "Говорю уверенно, сразу беру инициативу", type: "magnet" },
+      { text: "Немного теряюсь в первые секунды", type: "provocateur" }
+    ]
+  },
+  {
+    text: "Твои знакомые описывают твой голос как...",
+    options: [
+      { text: "Спокойный, мягкий, приятный", type: "therapist" },
+      { text: "Уверенный, чёткий, авторитетный", type: "expert" },
+      { text: "Яркий, запоминающийся, с энергией", type: "magnet" },
+      { text: "Необычный, выразительный, с характером", type: "provocateur" }
+    ]
+  },
+  {
+    text: "Ты рассказываешь что-то важное. Собеседник отвлёкся на телефон. Что делаешь?",
+    options: [
+      { text: "Делаю паузу и жду — неудобно говорить в пустоту", type: "therapist" },
+      { text: "Продолжаю — он всё равно слышит", type: "expert" },
+      { text: "Резко меняю тему или задаю провокационный вопрос", type: "provocateur" },
+      { text: "Говорю ещё увлечённее — возвращаю внимание голосом", type: "magnet" }
+    ]
+  },
+  {
+    text: "Как ты убеждаешь кого-то в своей правоте?",
+    options: [
+      { text: "Привожу факты и аргументы спокойно и последовательно", type: "expert" },
+      { text: "Апеллирую к чувствам — ищу эмоциональный отклик", type: "therapist" },
+      { text: "Говорю с такой уверенностью, что люди просто соглашаются", type: "magnet" },
+      { text: "Провоцирую — задаю неудобные вопросы, чтобы человек сам пришёл к выводу", type: "provocateur" }
+    ]
+  },
+  {
+    text: "Ты волнуешься перед важным выступлением. Как это проявляется в голосе?",
+    options: [
+      { text: "Голос становится тише и тоньше", type: "therapist" },
+      { text: "Говорю быстрее и сбивчивее", type: "provocateur" },
+      { text: "Практически не заметно — умею собираться", type: "expert" },
+      { text: "Немного, но адреналин даже добавляет энергии голосу", type: "magnet" }
+    ]
+  },
+  {
+    text: "После разговора с тобой люди чаще всего говорят:",
+    options: [
+      { text: "«Ты так понятно объясняешь — сразу всё ясно»", type: "expert" },
+      { text: "«С тобой так легко говорить, ты умеешь слушать»", type: "therapist" },
+      { text: "«Ты заряжаешь! После тебя хочется действовать»", type: "magnet" },
+      { text: "«Ты заставляешь думать — после тебя голова кипит»", type: "provocateur" }
+    ]
+  }
+];
+
+const results = {
+  expert: {
+    emoji: "🧠",
+    title: "Голос Эксперта",
+    desc: "Твой голос — это инструмент точности и доверия. Люди слышат тебя и думают: «Этот человек знает, о чём говорит». Ты говоришь структурированно, уверенно, без лишних слов. Именно такие голоса убеждают на переговорах, строят репутацию и формируют авторитет. Но порой тебе не хватает эмоционального тепла — и это можно развить.",
+    traits: ["Авторитетность", "Чёткость", "Структура", "Доверие", "Убедительность"]
+  },
+  therapist: {
+    emoji: "🌊",
+    title: "Голос-Терапевт",
+    desc: "Ты создаёшь безопасное пространство одним только звуком. Люди раскрываются рядом с тобой, чувствуют тепло и принятие. Это редкий дар — твой голос буквально лечит. Но иногда мягкость воспринимается как неуверенность. Научись добавлять твёрдость в нужный момент — и станешь непробиваемым.",
+    traits: ["Тепло", "Мягкость", "Принятие", "Эмпатия", "Безопасность"]
+  },
+  magnet: {
+    emoji: "🔥",
+    title: "Голос-Магнит",
+    desc: "Ты входишь в комнату — и тебя слышно. Не потому что громко, а потому что твой голос притягивает. В нём есть живая энергия, которая заражает окружающих. Ты рождён(а) для публичности — сцены, камеры, подкасты. Главное — научиться управлять этой силой, чтобы не давить, а вести за собой.",
+    traits: ["Харизма", "Энергия", "Притяжение", "Яркость", "Лидерство"]
+  },
+  provocateur: {
+    emoji: "⚡",
+    title: "Голос-Провокатор",
+    desc: "Твой голос не оставляет равнодушных. Ты умеешь задавать вопросы, которые будят мозг и заставляют людей думать. Это голос реформаторов, коучей и тех, кто меняет правила игры. Но иногда ты пугаешь тех, кто не готов. Прокачай умение выбирать момент — и сила твоего голоса станет суперспособностью.",
+    traits: ["Провокация", "Нестандартность", "Острота", "Смелость", "Влияние"]
+  }
+};
+
+let current = 0;
+let scores = { expert: 0, therapist: 0, magnet: 0, provocateur: 0 };
+
+function startQuiz() {
+  document.getElementById('splash').style.display = 'none';
+  document.getElementById('progressWrap').classList.add('show');
+  renderQuestion(0);
+}
+
+function renderQuestion(index) {
+  const container = document.getElementById('questions');
+  container.innerHTML = '';
+  const q = questions[index];
+  const card = document.createElement('div');
+  card.className = 'question-card active';
+  card.innerHTML = `
+    <div class="q-number">Вопрос ${index + 1} из ${questions.length}</div>
+    <div class="q-text">${q.text}</div>
+    <div class="options">
+      ${q.options.map(o => `
+        <button class="option" onclick="selectOption(this, '${o.type}')">${o.text}</button>
+      `).join('')}
+    </div>
+  `;
+  container.appendChild(card);
+  updateProgress(index);
+}
+
+function selectOption(btn, type) {
+  document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  btn.classList.add('selected');
+  scores[type]++;
+  setTimeout(() => {
+    current++;
+    if (current < questions.length) {
+      renderQuestion(current);
+    } else {
+      showResult();
+    }
+  }, 400);
+}
+
+function updateProgress(index) {
+  const pct = Math.round((index / questions.length) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `Вопрос ${index + 1} из ${questions.length}`;
+  document.getElementById('progressPercent').textContent = pct + '%';
+}
+
+function showResult() {
+  document.getElementById('questions').innerHTML = '';
+  document.getElementById('progressWrap').style.display = 'none';
+  const winner = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+  const r = results[winner];
+  document.getElementById('rEmoji').textContent = r.emoji;
+  document.getElementById('rTitle').textContent = r.title;
+  document.getElementById('rDesc').textContent = r.desc;
+  document.getElementById('rTraits').innerHTML = r.traits.map(t => `<span class="trait">${t}</span>`).join('');
+  document.getElementById('result').classList.add('active');
+}
+
+function retryQuiz() {
+  current = 0;
+  scores = { expert: 0, therapist: 0, magnet: 0, provocateur: 0 };
+  document.getElementById('result').classList.remove('active');
+  document.getElementById('progressWrap').classList.add('show');
+  document.getElementById('progressWrap').style.display = '';
+  renderQuestion(0);
+}
+</script>
+</body>
+</html>
